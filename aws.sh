@@ -10,7 +10,7 @@ echo "Enter AWS MFA code: "
 read mfa_code
 results=`aws sts get-session-token --duration-seconds 3600 --serial-number ${serial_number} --token-code ${mfa_code}`
 
-if [[ ! results ]]
+if [[ ! "$results" ]]
 then
   echo "Error obtaining credentials."
   exit 1
