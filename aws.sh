@@ -21,4 +21,6 @@ export AWS_ACCESS_KEY_ID=`echo $results | jq '.Credentials.AccessKeyId' -r`
 export AWS_SECRET_ACCESS_KEY=`echo $results | jq '.Credentials.SecretAccessKey' -r`
 export AWS_SESSION_TOKEN=`echo $results | jq '.Credentials.SessionToken' -r`
 
+# Redacted environment-specific setup script
+
 bash --rcfile <(echo '. ~/.bashrc; export AWS_PROD_SHELL=1; export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}; export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}; export AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}; PS1="PROD AWS SHELL | \w $ "; (sleep 3600; echo "\n>>>> AWS ACCESS EXPIRED <<<<")&')
