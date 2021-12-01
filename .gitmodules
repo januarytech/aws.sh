@@ -1,0 +1,3 @@
+[submodule "vendor/zshi"]
+	path = vendor/zshi
+	url = https://github.com/romkatv/zshi.git
