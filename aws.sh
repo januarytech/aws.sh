@@ -19,10 +19,10 @@ zsh)
 	zshi=$(dirname $BASH_SOURCE)/vendor/zshi/zshi
 
 	if ! test -f $zshi; then
-		echo 'zshi submodule not detected, but your login shell is zsh.' 2>&1
-		echo 'Running `git submodule update --init` to download it.' 2>&1
+		echo 'zshi submodule not detected, but your login shell is zsh.' 1>&2
+		echo 'Running `git submodule update --init` to download it.' 1>&2
 		if ! (cd $(dirname $BASH_SOURCE) && git submodule update --init); then
-			echo 'Failed to download zshi. Retrying with your shell set to bash.' 2>&1
+			echo 'Failed to download zshi. Retrying with your shell set to bash.' 1>&2
 			SHELL=/bin/bash exec $0 "$@"
 		fi
 	fi
@@ -32,8 +32,8 @@ zsh)
 	}
 	;;
 *)
-	echo "Unsupported login shell $user_shell detected; retrying with your shell set to bash." 2>&1
-	echo '(Feel free to add support for '"$user_shell"'!)' 2>&1
+	echo "Unsupported login shell $user_shell detected; retrying with your shell set to bash." 1>&2
+	echo '(Feel free to add support for '"$user_shell"'!)' 1>&2
 	SHELL=/bin/bash exec $0 "$@"
 	;;
 esac
