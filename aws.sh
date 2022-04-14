@@ -75,13 +75,16 @@ invoke_shell 3<<EOF
 	case $user_shell in
 	# Different shells have different PS1 metacharacters
 	zsh)
-		workdir='%~'
+		# $prompt_str instead of $prompt because $prompt is apparently interpreted by zsh
+		prompt_str='%# '
 		;;
 	bash)
-		workdir='\w'
+		prompt_str='\\\\$ '
 		;;
 	esac
-	PS1="PROD AWS SHELL | \$workdir $ "
+	PS1=\${PS1/\$prompt_str/ '[PROD AWS SHELL]' \$prompt_str}
+	# Ensure there isn't >1 space before "[PROD AWS SHELL]"
+	PS1=\${PS1/  '[PROD AWS SHELL]'/ [PROD AWS SHELL]}
 	(sleep 3600; echo "\n>>>> AWS ACCESS EXPIRED <<<<") &
 	# We disown because zsh by default complains about background jobs when you type ^D
 	disown
