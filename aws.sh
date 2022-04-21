@@ -82,7 +82,58 @@ invoke_shell 3<<EOF
 		prompt_str='\\\\$ '
 		;;
 	esac
-	PS1=\${PS1/\$prompt_str/ '[PROD AWS SHELL]' \$prompt_str}
+	if echo \$PS1 | grep -q \$prompt_str; then
+		# Shell theme uses the shell's native prompt substitution token
+		PS1=\${PS1/\$prompt_str/ '[PROD AWS SHELL]' \$prompt_str}
+	else
+		# Shell theme prints a custom prompt character
+
+		# echoing out PS1 in bash outputs backslash-escaped
+		# newlines instead of literal newlines, so normalize.
+		if [ $user_shell = bash ]; then
+			function newline_translate_cmd() {
+				sed 's/\\\\n/\n/g'
+			}
+		else
+			function newline_translate_cmd() {
+				cat
+			}
+		fi
+
+		function bash_fixup_space() {
+			# For some absolutely unfathomable reason sourcing ~/.bashrc instead of letting bash
+			# just read this file at startup strips trailing spaces in PS1.
+			# People usually want those so just add it back.
+			if [ $user_shell = bash ]; then
+				PS1=\$PS1' '
+			fi
+		}
+
+		if [ \$(echo \$PS1 | newline_translate_cmd | grep -v '^[[:space:]]*\$' | wc -l) = 1 ]; then
+			# Single line prompt, excluding whitespace-only lines
+			PS1="\$(echo \$PS1 | sed -E 's/^([[:space:]]*[^[:space:]]+)/[PROD AWS SHELL] \1/')"
+			bash_fixup_space
+		else
+			# Multiline prompt; pick the last line for
+			# insertion since this likely contains the
+			# actual prompt character - most themes that
+			# I've seen have status information on earlier
+			# lines.
+
+			# Likely this could be done with only one awk call
+			# but I am no wizard.
+
+			# First get the last line. For each line, if it contains a character other than space,
+			# we set the variable n to the line number. At the end, we print n.
+			last_line=\$(echo "\$PS1" | newline_translate_cmd | awk '/[^[:space:]]/ { n = NR }; END { print res n }')
+
+			# For each line, if it is not line number $last_line, print it. If it *is*, print it,
+			# but prepend the prod shell indicator string.
+			PS1=\$(echo \$PS1 | newline_translate_cmd | awk 'NR != '\$last_line' { print }; NR == '\$last_line' { print "[AWS PROD SHELL] ", \$0 }')
+
+			bash_fixup_space
+		fi
+	fi
 	# Ensure there isn't >1 space before "[PROD AWS SHELL]"
 	PS1=\${PS1/  '[PROD AWS SHELL]'/ [PROD AWS SHELL]}
 	(sleep 3600; echo "\n>>>> AWS ACCESS EXPIRED <<<<") &
