@@ -54,11 +54,16 @@ then
 fi
 
 echo "Obtained temporary AWS credentials. They will expire in one hour and will only work in this terminal."
-export AWS_ACCESS_KEY_ID=`echo $results | jq '.Credentials.AccessKeyId' -r`
-export AWS_SECRET_ACCESS_KEY=`echo $results | jq '.Credentials.SecretAccessKey' -r`
-export AWS_SESSION_TOKEN=`echo $results | jq '.Credentials.SessionToken' -r`
+function export_aws_vars() {
+  export AWS_ACCESS_KEY_ID=`echo $results | jq '.Credentials.AccessKeyId' -r`
+  export AWS_SECRET_ACCESS_KEY=`echo $results | jq '.Credentials.SecretAccessKey' -r`
+  export AWS_SESSION_TOKEN=`echo $results | jq '.Credentials.SessionToken' -r`
+}
+export_aws_vars
 
 # Redacted environment-specific setup script
+
+# Redacted environment-specific role assumption/argument parsing code
 
 invoke_shell 3<<EOF
 	# Note: the bash process running aws.sh expands these variables _before_ passing it to `$shell`.
