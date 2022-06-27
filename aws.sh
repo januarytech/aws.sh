@@ -43,7 +43,7 @@ unset AWS_SECRET_ACCESS_KEY
 unset AWS_SESSION_TOKEN
 serial_number=`aws iam list-mfa-devices --user-name $(aws iam get-user --output text | awk '{print $NF}') | jq '.MFADevices[0].SerialNumber' -r`
 
-echo "Enter AWS MFA code: "
+printf "Enter AWS MFA code: "
 read mfa_code
 results=`aws sts get-session-token --duration-seconds 3600 --serial-number ${serial_number} --token-code ${mfa_code}`
 
