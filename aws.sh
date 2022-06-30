@@ -1,6 +1,28 @@
 #!/usr/bin/env bash
 set -e
 
+function print_help() {
+  cat <<EOF
+usage: $(basename "$0") [-h]
+    -h, --help: show this help text
+    # Redacted environment-specific options
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+   # Redacted environment-specific flag parsing
+   *)
+      print_help
+      exit 1
+      ;;
+  esac
+done
+
 # We use functions in order to be able to pass a variable number of arguments to the shell being invoked.
 #
 # bash needs two (`--rcfile` followed by the filename), whereas zsh needs one (the full command to be executed at startup,
@@ -41,7 +63,7 @@ esac
 unset AWS_ACCESS_KEY_ID
 unset AWS_SECRET_ACCESS_KEY
 unset AWS_SESSION_TOKEN
-serial_number=`aws iam list-mfa-devices --user-name $(aws iam get-user --output text | awk '{print $NF}') | jq '.MFADevices[0].SerialNumber' -r`
+serial_number=`aws iam list-mfa-devices --user-name $(aws iam get-user --query 'User.UserName' --output text) | jq '.MFADevices[0].SerialNumber' -r`
 
 printf "Enter AWS MFA code: "
 read mfa_code
@@ -63,7 +85,7 @@ export_aws_vars
 
 # Redacted environment-specific setup script
 
-# Redacted environment-specific role assumption/argument parsing code
+# Redacted environment-specific role assumption code
 
 invoke_shell 3<<EOF
 	# Note: the bash process running aws.sh expands these variables _before_ passing it to `$shell`.
