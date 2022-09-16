@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+. $(dirname $BASH_SOURCE)/common.sh
 
 function print_help() {
   cat <<EOF
@@ -60,28 +61,7 @@ zsh)
 	;;
 esac
 
-unset AWS_ACCESS_KEY_ID
-unset AWS_SECRET_ACCESS_KEY
-unset AWS_SESSION_TOKEN
-serial_number=`aws iam list-mfa-devices --user-name $(aws iam get-user --query 'User.UserName' --output text) | jq '.MFADevices[0].SerialNumber' -r`
-
-printf "Enter AWS MFA code: "
-read mfa_code
-results=`aws sts get-session-token --duration-seconds 3600 --serial-number ${serial_number} --token-code ${mfa_code}`
-
-if [[ ! "$results" ]]
-then
-  echo "Error obtaining credentials."
-  exit 1
-fi
-
-echo "Obtained temporary AWS credentials. They will expire in one hour and will only work in this terminal."
-function export_aws_vars() {
-  export AWS_ACCESS_KEY_ID=`echo $results | jq '.Credentials.AccessKeyId' -r`
-  export AWS_SECRET_ACCESS_KEY=`echo $results | jq '.Credentials.SecretAccessKey' -r`
-  export AWS_SESSION_TOKEN=`echo $results | jq '.Credentials.SessionToken' -r`
-}
-export_aws_vars
+get_mfa_session
 
 # Redacted environment-specific setup script
 
