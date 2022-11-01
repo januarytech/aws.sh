@@ -27,7 +27,7 @@ function get_mfa_session() {
 
 function assume_role() {
     role=$1
-    if [[ "$2" != "" ]]; then
+    if ! [ -z ${2+x} ]; then
         session_name="$2"
     else
         session_name=$(date +"%s")
