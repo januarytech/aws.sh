@@ -63,8 +63,6 @@ esac
 
 get_mfa_session
 
-# Redacted environment-specific setup script
-
 # Redacted environment-specific role assumption code
 
 invoke_shell 3<<EOF
